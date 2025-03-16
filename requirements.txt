@@ -1,0 +1,4 @@
+asyncio==3.4.3
+ifaddr==0.2.0
+websockets==15.0.1
+zeroconf==0.146.1

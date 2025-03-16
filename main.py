@@ -1,16 +1,21 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from mdns_websocket import MdnsWebSocketServer
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+async def on_message(message, websocket):
+    print(f"📩 Mensagem recebida: {message}")
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+async def on_connect(websocket):
+    print("🔗 Cliente conectado!")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+async def on_disconnect(websocket):
+    print("❌ Cliente desconectado!")
+
+
+server = MdnsWebSocketServer(port=2350,
+                             on_message=on_message,
+                             on_connect=on_connect,
+                             on_disconnect=on_disconnect)
+
+server.start()
