@@ -6,11 +6,11 @@ import logging
 
 
 class MdnsWebSocketServer:
-    def __init__(self, port, on_message=None, on_connect=None, on_disconnect=None):
+    def __init__(self, port, on_message, on_connect=None, on_disconnect=None):
         self.port = port
         self.on_message = on_message
-        self.on_connect = on_connect
-        self.on_disconnect = on_disconnect
+        self.on_connect = on_connect if on_connect else MdnsWebSocketServer.on_connect
+        self.on_disconnect = on_disconnect if on_disconnect else MdnsWebSocketServer.on_disconnect
         self.clients = set()
 
     @staticmethod
@@ -27,6 +27,14 @@ class MdnsWebSocketServer:
             s.close()
         return local_ip
 
+    @staticmethod
+    async def on_connect(websocket):
+        print("🔗 Cliente conectado websocket!")
+
+    @staticmethod
+    async def on_disconnect(websocket):
+        print("❌ Cliente desconectado!")
+
     async def register_mdns_service(self):
         zeroconf = Zeroconf()
         ip = self.get_local_ip()
@@ -39,7 +47,6 @@ class MdnsWebSocketServer:
             server="websocket-py.local.",
         )
         await zeroconf.async_register_service(info)
-        print(f"Serviço mDNS registrado em {ip}:{self.port}")
 
     async def handler(self, websocket):
         self.clients.add(websocket)
@@ -47,7 +54,7 @@ class MdnsWebSocketServer:
             await self.on_connect(websocket)
         try:
             async for message in websocket:
-                await self.on_message(message, websocket)
+                self.on_message(message, websocket)
         except (websockets.exceptions.ConnectionClosed, websockets.exceptions.ConnectionClosedError):
             pass
         finally:
@@ -55,10 +62,14 @@ class MdnsWebSocketServer:
             if self.on_disconnect:
                 await self.on_disconnect(websocket)
 
+    async def send_message(self, message):
+        if self.clients:
+            tasks = [asyncio.create_task(client.send(message)) for client in self.clients]
+            await asyncio.wait(tasks)
+
     async def run_server(self):
         await self.register_mdns_service()
         async with websockets.serve(self.handler, "", self.port):
-            print(f"Servidor WebSocket iniciado na porta {self.port}")
             await asyncio.Future()
 
     def start(self):
