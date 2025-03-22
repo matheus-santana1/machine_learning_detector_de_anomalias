@@ -1,4 +1,10 @@
 asyncio==3.4.3
 ifaddr==0.2.0
+prompt_toolkit==3.0.50
+pyserial==3.5
+pyserial-asyncio==0.6
+questionary==2.1.0
+rich==13.9.4
+wcwidth==0.2.13
 websockets==15.0.1
 zeroconf==0.146.1
