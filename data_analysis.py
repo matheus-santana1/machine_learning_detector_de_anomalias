@@ -5,6 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 
+from data_extractor import nome_arquivo
+
 
 class LeitorCsv:
     def __init__(self, titulo, nome_arquivo, taxa_amostragem, web=False):
@@ -68,7 +70,7 @@ class LeitorCsv:
         plt.suptitle(self.titulo, fontsize=18, ha="center")
 
     def plotar_acelerometro(self):
-        plt.subplot(2, 1, 1)
+        plt.subplot(2, 2, 1)
         plt.plot(self._tempo_total, self.ax_list, label='ax')
         plt.plot(self._tempo_total, self.ay_list, label='ay')
         plt.plot(self._tempo_total, self.az_list, label='az')
@@ -79,7 +81,7 @@ class LeitorCsv:
         plt.grid()
 
     def plotar_giroscopio(self):
-        plt.subplot(2, 1, 2)
+        plt.subplot(2, 2, 2)
         plt.plot(self._tempo_total, self.gx_list, label='gx')
         plt.plot(self._tempo_total, self.gy_list, label='gy')
         plt.plot(self._tempo_total, self.gz_list, label='gz')
@@ -98,7 +100,7 @@ class LeitorCsv:
         plt.plot(freq[mascara], fft_abs[mascara], label=label)
 
     def plotar_fft_acelerometro(self):
-        plt.subplot(2, 1, 1)
+        plt.subplot(2, 2, 3)
         self._plotar_fft(self.ax_list, label='ax')
         self._plotar_fft(self.ay_list, label='ay')
         self._plotar_fft(self.az_list, label='az')
@@ -109,7 +111,7 @@ class LeitorCsv:
         plt.grid()
 
     def plotar_fft_giroscopio(self):
-        plt.subplot(2, 1, 2)
+        plt.subplot(2, 2, 4)
         self._plotar_fft(self.gx_list, label='gx')
         self._plotar_fft(self.gy_list, label='gy')
         self._plotar_fft(self.gz_list, label='gz')
@@ -127,22 +129,17 @@ class LeitorCsv:
         plt.close()
 
 
-prefix = ""
+nome = "Máquina de Lavar Cheia"
+arquivo = "maquinadelavar_cheia"
 
 if __name__ == "__main__":
-    csv = LeitorCsv(titulo=f"Liquidificador Vazio",
-                    nome_arquivo=f"datasets/liquidificador_vazio.csv",
+    csv = LeitorCsv(titulo=nome,
+                    nome_arquivo=f"datasets/{arquivo}.csv",
                     taxa_amostragem=300)
-    csv.criar_figure()
-    csv.plotar_acelerometro()
-    csv.plotar_giroscopio()
-    csv.exibir_e_salvar_plot(nome_png=f"dados{prefix}")
     csv.normalizar_todos_dados()
     csv.criar_figure()
     csv.plotar_acelerometro()
     csv.plotar_giroscopio()
-    csv.exibir_e_salvar_plot(nome_png=f"dados_normalizados{prefix}")
-    csv.criar_figure()
     csv.plotar_fft_acelerometro()
     csv.plotar_fft_giroscopio()
-    csv.exibir_e_salvar_plot(nome_png=f"fft_dados_normalizados{prefix}")
+    csv.exibir_e_salvar_plot(nome_png=f"{arquivo}")

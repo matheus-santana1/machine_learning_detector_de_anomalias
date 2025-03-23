@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-from data_analisys import LeitorCsv
+from data_analysis import LeitorCsv
 
 vazio = 0  # Equipamento funcionando normalmente
 cheio = 1  # Equipamento com anomalia por exemplo
