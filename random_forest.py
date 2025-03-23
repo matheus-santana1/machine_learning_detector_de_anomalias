@@ -12,11 +12,11 @@ pipeline = Pipeline([
     ('model', RandomForestClassifier(n_estimators=150, random_state=42))
 ])
 
-vazio = 0  # Equipamento funcionando normalmente
-cheio = 1  # Equipamento com anomalia por exemplo
+classes = {"Vazio": 0, "Cheio": 1, "Sensor Parado": 2}
 
-LIQUIDIFICADOR = "liquidificador"
-MAQUINADELAVAR = "maquinadelavar"
+sensor_parado = LeitorCsv(titulo=f"Sensor Parado",
+                          nome_arquivo=f"datasets/sensor_parado.csv",
+                          taxa_amostragem=300)
 
 liquidificador_cheio = LeitorCsv(titulo=f"Liquidificador Cheio",
                                  nome_arquivo=f"datasets/liquidificador_cheio.csv",
@@ -42,12 +42,13 @@ maquinadelavar_vazia = LeitorCsv(titulo=f"Máquina de Lavar Vazia",
                                  nome_arquivo=f"datasets/maquinadelavar_vazia.csv",
                                  taxa_amostragem=300)
 
-dataframe = pd.concat(objs=[liquidificador_cheio.to_dataframe(estado=cheio),
-                            liquidificador_vazio.to_dataframe(estado=vazio),
-                            liquidificador2_cheio.to_dataframe(estado=cheio),
-                            liquidificador2_vazio.to_dataframe(estado=vazio),
-                            maquinadelavar_cheia.to_dataframe(estado=cheio),
-                            maquinadelavar_vazia.to_dataframe(estado=vazio),
+dataframe = pd.concat(objs=[sensor_parado.to_dataframe(estado=classes["Sensor Parado"]),
+                            liquidificador_cheio.to_dataframe(estado=classes["Cheio"]),
+                            liquidificador_vazio.to_dataframe(estado=classes["Vazio"]),
+                            liquidificador2_cheio.to_dataframe(estado=classes["Cheio"]),
+                            liquidificador2_vazio.to_dataframe(estado=classes["Vazio"]),
+                            maquinadelavar_cheia.to_dataframe(estado=classes["Cheio"]),
+                            maquinadelavar_vazia.to_dataframe(estado=classes["Vazio"]),
                             ], ignore_index=True)
 
 X = dataframe[['ax', 'ay', 'az', 'gx', 'gy', 'gz']]  # Dados de entrada
