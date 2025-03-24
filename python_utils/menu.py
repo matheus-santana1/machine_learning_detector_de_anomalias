@@ -25,6 +25,17 @@ class Menu:
             return None
         return escolha
 
+    async def escolha_amostragem_ou_configurar_wifi(self):
+        opcoes = ['Configurar WiFi', 'Amostragem']
+        return await self._escolher_opcao(opcoes, "Opções")
+
+    @staticmethod
+    async def escolha_wifi():
+        with patch_stdout():
+            ssid = await questionary.text("SSID:", ).unsafe_ask_async()
+            password = await questionary.text("Password:", ).unsafe_ask_async()
+            return ssid, password
+
     @staticmethod
     async def escolha_de_amostras_e_nome_do_arquivo():
         with patch_stdout():

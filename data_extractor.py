@@ -69,18 +69,23 @@ async def main():
     menu = Menu()
     SERIAL_PORT = await menu.escolha_de_conexao()
     if SERIAL_PORT:
+        escolha = await menu.escolha_amostragem_ou_configurar_wifi()
         transport, protocol = await Serial().handle_serial_connection(SERIAL_PORT, on_message=on_message)
-        try:
-            while True:
-                if not gravando_arquivo:
-                    amostras_recebidas = 0
-                    [nome_arquivo, amostras_sec, tempo] = await menu.escolha_de_amostras_e_nome_do_arquivo()
-                    total_amostras = amostras_sec * tempo
-                    protocol.send(json.dumps({"quantidade": amostras_sec, "tempo": tempo}))
-                    await progress_bar()
-                await asyncio.sleep(1)
-        finally:
-            transport.close()
+        if escolha == 'Configurar WiFi':
+            ssid, password = await menu.escolha_wifi()
+            protocol.send(json.dumps({"ssid": ssid, "password": password}))
+        elif escolha == 'Amostragem':
+            try:
+                while True:
+                    if not gravando_arquivo:
+                        amostras_recebidas = 0
+                        [nome_arquivo, amostras_sec, tempo] = await menu.escolha_de_amostras_e_nome_do_arquivo()
+                        total_amostras = amostras_sec * tempo
+                        protocol.send(json.dumps({"quantidade": amostras_sec, "tempo": tempo}))
+                        await progress_bar()
+                    await asyncio.sleep(1)
+            finally:
+                transport.close()
     else:
         server = MdnsWebSocketServer(port=2350, on_message=on_message)
         server_task = asyncio.create_task(server.run_server())

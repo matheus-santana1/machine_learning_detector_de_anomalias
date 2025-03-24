@@ -7,14 +7,15 @@
 #include <ArduinoJson.h>
 #include <ESPmDNS.h>
 #include <Wire.h>
+#include <SPIFFS.h>
 
-#define SSID "MS"
-#define PASSWORD "matheuss189"
 #define NAME_SERVER "websocket-py"
 #define RECONNECT_INTERVAL 1000
-
 #define LED_BUILTIN 2
 #define LED 25
+
+String wifiSSID = "";
+String wifiPassword = "";
 
 sensors_event_t a, g, temp;
 WiFiMulti WiFiMulti;
@@ -35,17 +36,58 @@ int quantidadeTotalAmostras = 0;
 bool amostrando = false;
 bool conectadoSocket = false;
 
+
+void initFS() {
+  if (!SPIFFS.begin(true)) {
+    Serial.println("Erro ao montar o sistema de arquivos SPIFFS");
+    return;
+  }
+  Serial.println("Sistema de arquivos SPIFFS montado com sucesso");
+}
+
+void readWiFiCredentials() {
+  File file = SPIFFS.open("/wifi_credentials.txt", "r");
+  if (!file) {
+    Serial.println("Arquivo de credenciais não encontrado, usando padrões");
+    return;
+  }
+  wifiSSID = file.readStringUntil('\n');
+  wifiPassword = file.readStringUntil('\n');
+  wifiSSID.trim();
+  wifiPassword.trim();
+  file.close();
+}
+
+void saveWiFiCredentials(const String &ssid, const String &password) {
+  File file = SPIFFS.open("/wifi_credentials.txt", "w");
+  if (!file) {
+    Serial.println("Erro ao abrir arquivo para escrita");
+    return;
+  }
+  file.println(ssid);
+  file.println(password);
+  file.close();
+}
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Serial iniciada!");
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(LED, OUTPUT);
 
-  WiFiMulti.addAP(SSID, PASSWORD);
-	while(WiFiMulti.run() != WL_CONNECTED) {
-		delay(100);
-	}
-  Serial.printf("Conectado ao wifi %s\n", SSID);
+  initFS();
+  readWiFiCredentials();
+  
+  if (wifiSSID != "" && wifiPassword != "") {
+    WiFiMulti.addAP(wifiSSID.c_str(), wifiPassword.c_str());
+  }
+  if(WiFiMulti.run() == WL_CONNECTED) {
+    Serial.printf("Conectado ao wifi %s\n", WiFi.SSID().c_str());
+    digitalWrite(LED_BUILTIN, HIGH);
+  }else {
+    Serial.printf("Não conectado ao wifi\n");
+    digitalWrite(LED_BUILTIN, LOW);
+  }
 
   if (!MDNS.begin("Esp32")) {
     Serial.println("Erro MDNS!");
@@ -67,7 +109,6 @@ void setup() {
   xTaskCreatePinnedToCore(comunicacaoSocket, "TarefaSerial", 10000, NULL, 1, NULL, 0); // Núcleo 0
   xTaskCreatePinnedToCore(comunicacaoSerial, "TarefaWebSocket", 10000, NULL, 1, NULL, 1); // Núcleo 1
   xTaskCreatePinnedToCore(amostragem, "AmostragemWebSocket", 10000, NULL, 1, NULL, 1); // Núcleo 1
-  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
@@ -95,6 +136,17 @@ void processarMensagem(String mensagem) {
   DeserializationError error = deserializeJson(response, mensagem.c_str());
   if (error) {
     Serial.printf("Falha na deserialização: %s\n", error.f_str());
+  }
+  else if (response.containsKey("ssid") && response.containsKey("password")) {
+    String newSSID = response["ssid"].as<String>();
+    String newPassword = response["password"].as<String>();
+    saveWiFiCredentials(newSSID, newPassword);
+    if(conectadoSocket) {
+      webSocket.sendTXT("{\"status\":\"WiFi credentials updated\"}");
+    } else {
+      Serial.println("{\"status\":\"WiFi credentials updated\"}");
+    }
+    ESP.restart();
   }
   else if (response.containsKey("quantidade") && response.containsKey("tempo")) {
     quantidadeAmostras = response["quantidade"];
