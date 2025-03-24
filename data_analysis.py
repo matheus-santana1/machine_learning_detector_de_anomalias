@@ -129,17 +129,23 @@ class LeitorCsv:
         plt.close()
 
 
-nome = "Máquina de Lavar Cheia"
-arquivo = "maquinadelavar_cheia"
+arquivos = (('Liquidificador 2 - Cheio', 'liquidificador2_cheio'),
+            ('Liquidificador 2 - Vazio', 'liquidificador2_vazio'),
+            ('Liquidificador - Cheio', 'liquidificador_cheio'),
+            ('Liquidificador - Vazio', 'liquidificador_vazio'),
+            ('Máquina de Lavar - Cheia', 'maquinadelavar_cheia'),
+            ('Máquina de Lavar - Vazia', 'maquinadelavar_vazia'),
+            ('Sensor Parado', 'sensor_parado'),)
 
 if __name__ == "__main__":
-    csv = LeitorCsv(titulo=nome,
-                    nome_arquivo=f"datasets/{arquivo}.csv",
-                    taxa_amostragem=300)
-    csv.normalizar_todos_dados()
-    csv.criar_figure()
-    csv.plotar_acelerometro()
-    csv.plotar_giroscopio()
-    csv.plotar_fft_acelerometro()
-    csv.plotar_fft_giroscopio()
-    csv.exibir_e_salvar_plot(nome_png=f"{arquivo}")
+    for nome, arquivo in arquivos:
+        csv = LeitorCsv(titulo=nome,
+                        nome_arquivo=f"datasets/{arquivo}.csv",
+                        taxa_amostragem=300)
+        # csv.normalizar_todos_dados()
+        csv.criar_figure()
+        csv.plotar_acelerometro()
+        csv.plotar_giroscopio()
+        csv.plotar_fft_acelerometro()
+        csv.plotar_fft_giroscopio()
+        csv.exibir_e_salvar_plot(nome_png=f"{arquivo}")
