@@ -129,13 +129,29 @@ class LeitorCsv:
         plt.close()
 
 
-arquivos = (('Liquidificador 2 - Cheio', 'liquidificador2_cheio'),
+arquivos = (('Liquidificador 8 - Vazio', 'liquidificador8_vazio'),
+	    ('Liquidificador 8 - Cheio', 'liquidificador8_cheio'),
+	    ('Liquidificador 7 - Vazio', 'liquidificador7_vazio'),
+	    ('Liquidificador 7 - Cheio', 'liquidificador7_cheio'),
+	    ('Liquidificador 6 - Vazio', 'liquidificador6_vazio'),
+	    ('Liquidificador 6 - Cheio', 'liquidificador6_cheio'),
+	    ('Liquidificador 5 - Vazio', 'liquidificador5_vazio'),
+	    ('Liquidificador 5 - Cheio', 'liquidificador5_cheio'),
+	    ('Liquidificador 4 - Vazio', 'liquidificador4_vazio'),
+	    ('Liquidificador 4 - Cheio', 'liquidificador4_cheio'),
+	    ('Liquidificador 3 - Vazio', 'liquidificador3_vazio'),
+	    ('Liquidificador 3 - Cheio', 'liquidificador3_cheio'),
+	    ('Liquidificador 2 - Cheio', 'liquidificador2_cheio'),
             ('Liquidificador 2 - Vazio', 'liquidificador2_vazio'),
             ('Liquidificador - Cheio', 'liquidificador_cheio'),
             ('Liquidificador - Vazio', 'liquidificador_vazio'),
+            ('Máquina de Lavar 2 - Cheia', 'maquinadelavar2_cheia'),
+            ('Máquina de Lavar 2 - Vazia', 'maquinadelavar2_vazia'),
             ('Máquina de Lavar - Cheia', 'maquinadelavar_cheia'),
             ('Máquina de Lavar - Vazia', 'maquinadelavar_vazia'),
-            ('Sensor Parado', 'sensor_parado'),)
+            ('Sensor Parado3', 'sensor_parado3'),
+            ('Sensor Parado2', 'sensor_parado2'),
+            ('Sensor Parado', 'sensor_parado'))
 
 if __name__ == "__main__":
     for nome, arquivo in arquivos:
